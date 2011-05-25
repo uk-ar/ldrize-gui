@@ -10,6 +10,7 @@ try { if(top !== self) throw 0 }catch([]){ return }// iframe内ならreturn
 if(!window.Minibuffer) return;
 if(!window.LDRize)return;
 var $X = window.Minibuffer.$X;
+var $N = window.Minibuffer.$N;
 var D = window.Minibuffer.D();
 
 var run = function(){
@@ -17,26 +18,29 @@ var run = function(){
   //var p=$X(siteinfo.paragraph);
 
   //var indicator=document.getElementById("gm_ldrize_indicator");
-  //var indicator=$X('//*[@id="gm_ldrize_indicator"]')[0];
   //var indicator=$X("id('gm_ldrize_indicator')")[0];
   var indicator=$X('//*[@id="gm_ldrize_indicator"]')[0];
   var attr = {
     id : "id",
-    style: "position:absolute;top:148px;left:161px"
+    style: "float:left;background:red"
   }
-  var e = $N('button',attr,"fuga");
+  var e = $N('div', {id: "hoge", style:"position:absolute"},
+	     [$N('button',attr,"ok"), $N('button',attr,"ng")])
+
   e.addEventListener('click', function(){
     window.Minibuffer.execute('LDRize::next');
     console.log("but!");
     update();
   },false);
-  //console.log("ld:"+ $X('//*[@id="gm_ldrize"]'));//[0].appendChild(e);
+
   $X('//*[@id="gm_ldrize"]')[0].appendChild(e);
 
   var update = function(){
+    //becase when display  ==  'none' then e.offsetWidth == 0
+    var offset = e.offsetWidth;
     e.style.display='none';
-    e.style.top=indicator.y+11+'px';
-    e.style.left=indicator.x+'px';
+    e.style.top=indicator.y+indicator.height+'px';
+    e.style.left=indicator.x+indicator.width-offset+'px';
     e.style.display='inline';
   }
 
@@ -49,10 +53,6 @@ var run = function(){
       window.Minibuffer.execute('LDRize::next');
       console.log("m!");
       update();
-      // e.style.display='none';
-      // e.style.top=indicator.y+11+'px';
-      // e.style.left=indicator.x+'px';
-      // e.style.display='inline';
     }
   });
   window.Minibuffer.addShortcutkey({
@@ -62,18 +62,12 @@ var run = function(){
       window.Minibuffer.execute('LDRize::prev');
       console.log("m!");
       update();
-      // e.style.display='none';
-      // e.style.top=indicator.y+11+'px';
-      // e.style.left=indicator.x+'px';
-      // e.style.display='inline';
     }
   });
 
 }
 
 // Based on AutoPagerize.addFilter workaround
-var $X=window.Minibuffer.$X;
-var $N=window.Minibuffer.$N;
 
 var i=4;
 function waitMinibuffer() {
