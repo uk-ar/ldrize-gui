@@ -22,27 +22,74 @@ var run = function(){
   var indicator=$X('//*[@id="gm_ldrize_indicator"]')[0];
   var attr = {
     id : "id",
-    style: "float:left;background:red"
+    style: "float:left"
   }
-  var e = $N('div', {id: "hoge", style:"position:absolute"},
-	     [$N('button',attr,"ok"), $N('button',attr,"ng")])
+ 
+  var siteinfo = window.LDRize.getSiteinfo();
+  var paragraphs=$X(siteinfo['paragraph']);
+  
+  var add_button_to_paragraph = function(evt){
+    //console.log("added");
+    //need recalculate
+    var added_paragraphs;
+    if($X(siteinfo['paragraph']).length == paragraphs.length){
+      added_paragraphs = paragraphs;
+    }else{
+      added_paragraphs = $X(siteinfo['paragraph']).slice(paragraphs.length);
+    }
+    //console.log("added_paragraphs"+added_paragraphs);
+    paragraphs = $X(siteinfo['paragraph']);
 
-  e.addEventListener('click', function(){
-    window.Minibuffer.execute('LDRize::next');
-    console.log("but!");
-    update();
-  },false);
+    //idがかぶってる場合うまくとれない
+    //paragraphs = $X(siteinfo['paragraph'], evt.target);
 
-  $X('//*[@id="gm_ldrize"]')[0].appendChild(e);
+    added_paragraphs.forEach(function(paragraph){
+      //because not work for autopager autopagerize 比較
+      //paragraph=paragraph.firstChild;
+      var e = $X(siteinfo['link'], paragraph)[0].parentNode;
+      var pin_button = $N('button',{id: "id",style: "background: red"},"hoge");
+      pin_button.addEventListener('click', function(){
+	//if current node = 0;
+	window.Minibuffer.execute('current-node|toggle-pin');
+	window.Minibuffer.execute('LDRize::next');
+	update();
+      },false);
+
+      e.insertBefore(pin_button,e.firstChild);
+    });
+  }
+  window.addEventListener('AutoPagerize_DOMNodeInserted', add_button_to_paragraph, false);
+  add_button_to_paragraph();
 
   var update = function(){
     //becase when display  ==  'none' then e.offsetWidth == 0
     var offset = e.offsetWidth;
     e.style.display='none';
     e.style.top=indicator.y+indicator.height+'px';
-    e.style.left=indicator.x+indicator.width-offset+'px';
+    e.style.left=indicator.x+indicator.width-offset+'px';//if <0
     e.style.display='inline';
   }
+  var next_button = $N('button',attr,"↓");
+  next_button.addEventListener('click', function(){
+    //if current node = 0;
+    window.Minibuffer.execute('LDRize::next');
+    update();
+  },false);
+  var prev_button = $N('button',attr,"↑");
+  prev_button.addEventListener('click', function(){
+    window.Minibuffer.execute('LDRize::prev');
+    update();
+  },false);
+
+  var e = $N('div', {id: "hoge", style:"position:absolute"},
+  	     [next_button,prev_button])
+
+  // e.addEventListener('click', function(){
+  //   window.Minibuffer.execute('LDRize::next');
+  //   update();
+  // },false);
+  
+  $X('//*[@id="gm_ldrize"]')[0].appendChild(e);
 
   update();
 
@@ -84,3 +131,4 @@ function waitMinibuffer() {
   }
 }
 waitMinibuffer();
+ 
