@@ -58,8 +58,8 @@ var run = function(){
       e.insertBefore(pin_button,e.firstChild);
     });
   }
-  window.addEventListener('AutoPagerize_DOMNodeInserted', add_button_to_paragraph, false);
-  add_button_to_paragraph();
+  //window.addEventListener('AutoPagerize_DOMNodeInserted', add_button_to_paragraph, false);
+  //add_button_to_paragraph();
 
   var update = function(){
     //becase when display  ==  'none' then e.offsetWidth == 0
@@ -69,20 +69,63 @@ var run = function(){
     e.style.left=indicator.x+indicator.width-offset+'px';//if <0
     e.style.display='inline';
   }
+
+  var skip_top = function(){
+    var current_node;
+    try{
+      //if error (browse-url "http://furyu.tea-nifty.com/annex/2008/11/readmoreldrize-.html")
+      current_node = window.Minibuffer.execute('current-node');//need if undefined
+    } catch (e){}
+    if(current_node === undefined){
+      window.Minibuffer.execute('LDRize::next');
+    }
+  }
   var next_button = $N('button',attr,"↓");
   next_button.addEventListener('click', function(){
     //if current node = 0;
+    skip_top();
     window.Minibuffer.execute('LDRize::next');
     update();
   },false);
+  
   var prev_button = $N('button',attr,"↑");
   prev_button.addEventListener('click', function(){
     window.Minibuffer.execute('LDRize::prev');
     update();
   },false);
+  
+  var pin_button = $N('button',attr,"P");
+  pin_button.addEventListener('click', function(){
+    skip_top();
+    // if(current_node[0] === paragraphs[0]){
+    //   console.log("top");
+    // }
+    window.Minibuffer.execute('current-node|toggle-pin');
+    window.Minibuffer.execute('LDRize::next');
+    update();
+  },false);
+  var select_button =
+    $N('select',attr ,
+       [$N('option', {value: "", selected: "selected",}, "pinned.."),
+	$N('option', {value: "include"}, "include"),
+	$N('option', {value: "exclude"}, "exclude"),
+       ]);
+  select_button.addEventListener('change', function(){
+    //console.log(this.options[this.selectedIndex].value);
+    switch(this.options[this.selectedIndex].value){
+    case "include":
+      window.Minibuffer.execute('Nearly::include');
+      break;
+    case "exclude":
+      window.Minibuffer.execute('Nearly::exclude');
+      break;
+    }
+    update();
+    this.selectedIndex = 0;
+  },false);
 
   var e = $N('div', {id: "hoge", style:"position:absolute"},
-  	     [next_button,prev_button])
+  	     [pin_button, next_button, prev_button, select_button])
 
   // e.addEventListener('click', function(){
   //   window.Minibuffer.execute('LDRize::next');
