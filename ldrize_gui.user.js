@@ -80,30 +80,46 @@ var run = function(){
       window.Minibuffer.execute('LDRize::next');
     }
   }
-  var next_button = $N('button',attr,"↓");
-  next_button.addEventListener('click', function(){
-    //if current node = 0;
+
+  var command = function(stdin, comment){
     skip_top();
     window.Minibuffer.execute('LDRize::next');
     update();
-  },false);
-  
-  var prev_button = $N('button',attr,"↑");
-  prev_button.addEventListener('click', function(){
+  }
+  window.Minibuffer.addShortcutkey({
+    key: 'j',
+    description: 'Nearly::next', // 説明
+    command: command
+  });
+  var next_button = $N('button',attr,"↓");
+  next_button.addEventListener('click', command ,false);
+
+  var command = function(stdin, comment){
     window.Minibuffer.execute('LDRize::prev');
     update();
-  },false);
-  
-  var pin_button = $N('button',attr,"P");
-  pin_button.addEventListener('click', function(){
+  }
+  window.Minibuffer.addShortcutkey({
+    key: 'k',
+    description: 'Nearly::prev', // 説明
+    command: command
+  });
+  var prev_button = $N('button',attr,"↑");
+  prev_button.addEventListener('click', command ,false);
+
+  var command = function(stdin, comment){
     skip_top();
-    // if(current_node[0] === paragraphs[0]){
-    //   console.log("top");
-    // }
     window.Minibuffer.execute('current-node|toggle-pin');
     window.Minibuffer.execute('LDRize::next');
     update();
-  },false);
+  }
+  window.Minibuffer.addShortcutkey({
+    key: 'p',
+    description: 'Nearly::pin', // 説明
+    command: command
+  });
+  var pin_button = $N('button',attr,"P");
+  pin_button.addEventListener('click', command, false);
+  
   var select_button =
     $N('select',attr ,
        [$N('option', {value: "", selected: "selected",}, "pinned.."),
@@ -136,24 +152,6 @@ var run = function(){
 
   update();
 
-  window.Minibuffer.addShortcutkey({
-    key: 'm',
-    description: 'Show::location::by::key', // 説明
-    command: function(){ // 実行するコマンド
-      window.Minibuffer.execute('LDRize::next');
-      console.log("m!");
-      update();
-    }
-  });
-  window.Minibuffer.addShortcutkey({
-    key: ',',
-    description: 'Show::location::by::key2', // 説明
-    command: function(){ // 実行するコマンド
-      window.Minibuffer.execute('LDRize::prev');
-      console.log("m!");
-      update();
-    }
-  });
 
 }
 
